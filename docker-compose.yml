@@ -1,0 +1,73 @@
+# Full stack: Postgres with pgvector, the API, and the web app.
+#
+#   cp .env.example .env      # optionally add a model key
+#   docker compose up --build
+#   open http://localhost:3000
+#
+# Without a model key the stack still runs: the API serves Demo Mode from the
+# recordings in data/recordings and uses the local lexical vectoriser.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: argus
+      POSTGRES_PASSWORD: argus
+      POSTGRES_DB: argus
+    ports:
+      - '5432:5432'
+    volumes:
+      - argus-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U argus -d argus']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: docker
+      DATABASE_URL: postgresql+psycopg://argus:argus@db:5432/argus
+      API_HOST: 0.0.0.0
+      API_PORT: '8000'
+      CORS_ORIGINS: http://localhost:3000
+      MODEL_BACKEND: ${MODEL_BACKEND:-auto}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MODEL_NAME: ${MODEL_NAME:-gpt-4o-mini}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-auto}
+    volumes:
+      # Recordings and the synthetic corpus are read at runtime.
+      - ./data:/app/data
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD-SHELL', 'python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(''http://localhost:8000/health'').status==200 else 1)"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - '3000:3000'
+
+volumes:
+  argus-db:
