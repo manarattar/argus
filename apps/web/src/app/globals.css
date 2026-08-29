@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens are defined once, in light and dark, and everything else references
+ * them through Tailwind. No component hardcodes a colour.
+ */
+@layer base {
+  :root {
+    --canvas: 248 250 252;
+    --surface: 255 255 255;
+    --raised: 244 247 250;
+    --line: 226 232 240;
+    --line-strong: 203 213 225;
+    --ink: 15 23 42;
+    --ink-muted: 71 85 105;
+    --ink-subtle: 130 143 161;
+    --accent: 30 87 138;
+    --accent-soft: 232 240 248;
+
+    --low: 21 115 85;
+    --moderate: 168 116 12;
+    --elevated: 187 84 20;
+    --high: 172 32 42;
+  }
+
+  .dark {
+    --canvas: 10 14 20;
+    --surface: 17 23 32;
+    --raised: 24 32 43;
+    --line: 33 43 56;
+    --line-strong: 50 63 79;
+    --ink: 228 236 244;
+    --ink-muted: 154 168 184;
+    --ink-subtle: 111 125 141;
+    --accent: 106 168 226;
+    --accent-soft: 22 39 56;
+
+    --low: 78 189 148;
+    --moderate: 224 168 62;
+    --elevated: 240 143 78;
+    --high: 240 113 120;
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Figures line up in columns without needing a monospace font. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent/70 ring-offset-1 ring-offset-canvas;
+  }
+
+  ::selection {
+    @apply bg-accent/20;
+  }
+}
+
+@layer components {
+  /* Thin, unobtrusive scrollbars: dense panels scroll a lot. */
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--line-strong)) transparent;
+  }
+  .scroll-slim::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--line-strong));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-raised;
+  }
+  .skeleton::after {
+    @apply absolute inset-0 animate-shimmer;
+    content: '';
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--surface) / 0.65),
+      transparent
+    );
+    transform: translateX(-100%);
+  }
+
+  /* Markdown rendered from the report endpoint. */
+  .prose-report h1 {
+    @apply mb-3 mt-0 text-2xl font-semibold tracking-tight;
+  }
+  .prose-report h2 {
+    @apply mb-2 mt-7 border-b border-line pb-1.5 text-lg font-semibold;
+  }
+  .prose-report h3 {
+    @apply mb-1.5 mt-5 text-base font-semibold;
+  }
+  .prose-report p {
+    @apply my-2.5 text-ink-muted;
+  }
+  .prose-report ul {
+    @apply my-2.5 list-disc space-y-1 pl-5 text-ink-muted;
+  }
+  .prose-report table {
+    @apply my-3 w-full border-collapse text-xs;
+  }
+  .prose-report th {
+    @apply border border-line bg-raised px-2.5 py-1.5 text-left font-semibold;
+  }
+  .prose-report td {
+    @apply border border-line px-2.5 py-1.5 align-top text-ink-muted;
+  }
+  .prose-report code {
+    @apply rounded bg-raised px-1 py-0.5 font-mono text-2xs text-ink;
+  }
+  .prose-report strong {
+    @apply font-semibold text-ink;
+  }
+  .prose-report em {
+    @apply text-ink-subtle;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
