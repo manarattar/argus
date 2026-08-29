@@ -1,0 +1,27 @@
+# ---- ARGUS backend runtime ----
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.5
+pydantic-settings==2.7.1
+sqlalchemy==2.0.36
+alembic==1.14.0
+python-multipart==0.0.20
+httpx==0.28.1
+tenacity==9.0.0
+numpy==2.2.1
+python-dotenv==1.0.1
+slowapi==0.1.9
+
+# ---- agent orchestration ----
+langgraph==0.2.62
+langgraph-checkpoint-sqlite==2.0.1
+
+# ---- llm providers (optional at runtime, imported lazily) ----
+anthropic==0.42.0
+
+# ---- reporting ----
+reportlab==4.2.5
+
+# ---- postgres (optional; sqlite is the default dev target) ----
+psycopg[binary]==3.2.3
+pgvector==0.3.6

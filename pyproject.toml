@@ -1,0 +1,85 @@
+[project]
+name = "argus"
+version = "0.1.0"
+description = "ARGUS - Agentic Risk Governance & Understanding System"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { file = "LICENSE" }
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ai", "argus_api"]
+package-dir = { "argus_api" = "apps/api/argus_api" }
+
+# ---------------------------------------------------------------------------
+# Lint / format
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "apps/web", "data/recordings"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4", "SIM", "RUF", "ARG", "PTH"]
+# E203 conflicts with the formatter's slice spacing; E501 is handled by the
+# formatter itself rather than the linter.
+ignore = ["E203", "E501", "RUF012", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ARG", "S101"]
+"scripts/**" = ["ARG"]
+# Every check implements the same handler signature so the harness can call
+# them uniformly; not all of them need both arguments.
+"ai/evaluators/checks.py" = ["ARG001"]
+# FastAPI passes arguments to lifespan and exception handlers by convention.
+"apps/api/argus_api/main.py" = ["ARG001"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+# argus_api lives under apps/api, which is on the path at runtime via
+# uvicorn --app-dir and via pyproject's pytest pythonpath.
+mypy_path = ["apps/api", "."]
+explicit_package_bases = true
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+warn_redundant_casts = true
+no_implicit_optional = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+exclude = ["\\.venv", "apps/web", "tests/e2e"]
+
+[[tool.mypy.overrides]]
+module = ["langgraph.*", "reportlab.*", "pgvector.*", "slowapi.*", "anthropic.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "scripts.*"]
+disallow_untyped_defs = false
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "apps/api"]
+addopts = "-q --strict-markers"
+asyncio_mode = "auto"
+markers = [
+  "integration: exercises the API and database together",
+  "agents: runs the agent graph (uses the replay provider unless a key is set)",
+  "slow: excluded from the default fast feedback loop",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["ai", "apps/api/argus_api"]
+omit = ["*/__init__.py", "*/migrations/*"]
