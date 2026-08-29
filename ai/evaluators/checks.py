@@ -239,6 +239,17 @@ def check_citation_integrity(case: EvalCase, ctx: EvalContext) -> CaseOutcome:
             if eid not in valid:
                 dangling.append(f"{risk.risk_id}->{eid}")
 
+    # A record attached to a finding that does not exist is an orphan: the
+    # integrity pass drops it, so the analyst silently loses a policy match or a
+    # challenge. A live run once lost every policy match this way, because the
+    # policy agent minted its own risk identifiers instead of copying the
+    # findings'. This assertion exists so that cannot recur unnoticed.
+    integrity = ctx.investigation.integrity or {}
+    orphans = int(integrity.get("orphans_removed", 0) or 0)
+    if orphans:
+        total += orphans
+        dangling.append(f"{orphans} record(s) orphaned by a risk_id that does not resolve")
+
     passed = not dangling
     return CaseOutcome(
         passed=passed,

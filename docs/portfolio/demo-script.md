@@ -54,7 +54,14 @@ everything else.*
 
 Open **Northstar Manufacturing B.V.**
 
-> Elevated, computed from the findings. Evidence strength Moderate.
+> Elevated or High depending on the run, computed from the findings rather
+> than asserted, with the evidence-strength band beside it.
+
+Read the rating off the screen rather than from this script. The findings a
+model produces vary a little between runs, so the composite moves; what does
+not move is the mapping from findings to rating, which is arithmetic. If the
+rating is High, the escalation banner will be showing - use it, it is a
+better demo than Elevated because it shows the control blocking approval.
 
 Scroll to **How this rating was calculated**.
 

@@ -47,7 +47,19 @@ class Settings(BaseSettings):
     # -- storage --------------------------------------------------------
     # SQLite by default so first run needs no container. docker-compose sets
     # this to the Postgres/pgvector service instead; the ORM layer is identical.
-    database_url: str = Field(default=f"sqlite:///{REPO_ROOT / 'data' / 'argus.db'}")
+    database_url: str = Field(default="")
+
+    @field_validator("database_url")
+    @classmethod
+    def _default_database(cls, value: str) -> str:
+        """Treat an unset or blank DATABASE_URL as "use the local default".
+
+        `.env.example` ships the key with an empty value so it is discoverable,
+        and `cp .env.example .env` is the documented first step. Without this,
+        that blank string would silently override the default and the app would
+        try to reach a database that was never configured.
+        """
+        return value.strip() or f"sqlite:///{REPO_ROOT / 'data' / 'argus.db'}"
 
     # -- model backend --------------------------------------------------
     # "auto" resolves to live inference when a token is present, and to replay

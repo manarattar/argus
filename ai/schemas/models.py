@@ -19,7 +19,7 @@ Design rules enforced here:
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -222,7 +222,13 @@ class RiskAnalysis(ArgusModel):
 # Agent 4 - Policy Analyst
 # --------------------------------------------------------------------------
 
-_TRIGGER_TYPES = frozenset({"review_trigger", "potential_breach", "informational", "threshold_met"})
+# Expressed as a Literal rather than checked by a validator, so the allowed
+# values appear in the JSON Schema the model is shown. A constraint enforced
+# only in Python is invisible at generation time: the model cannot honour a rule
+# it was never told about, and the first symptom is a retry loop that exhausts
+# its budget. Found exactly that way against a live model, where the Challenger
+# failed three attempts in a row on a closed vocabulary it had never seen.
+TriggerType = Literal["review_trigger", "potential_breach", "informational", "threshold_met"]
 
 
 class PolicyMatch(ArgusModel):
@@ -238,20 +244,13 @@ class PolicyMatch(ArgusModel):
     )
     clause_title: str = Field(min_length=3, max_length=200)
     relevance: str = Field(min_length=20, max_length=900)
-    trigger_type: str = Field(max_length=32)
+    trigger_type: TriggerType
     threshold_assessment: str = Field(default="", max_length=600)
     sufficiency_caveat: str = Field(
         default="",
         max_length=600,
         description="Why available evidence may not be sufficient to assert a breach.",
     )
-
-    @field_validator("trigger_type")
-    @classmethod
-    def _known_trigger(cls, value: str) -> str:
-        if value not in _TRIGGER_TYPES:
-            raise ValueError(f"trigger_type must be one of {sorted(_TRIGGER_TYPES)}")
-        return value
 
 
 class PolicyAnalysis(ArgusModel):
@@ -260,22 +259,32 @@ class PolicyAnalysis(ArgusModel):
     matches: list[PolicyMatch] = Field(default_factory=list, max_length=40)
     unmatched_note: str = Field(default="", max_length=600)
 
+    @field_validator("matches")
+    @classmethod
+    def _unique_match_ids(cls, matches: list[PolicyMatch]) -> list[PolicyMatch]:
+        # Two clauses often come from the same chunk. An agent deriving the id
+        # from the chunk therefore produces collisions, which reached
+        # persistence as a primary key violation and aborted a completed
+        # investigation before this check existed.
+        ids = [m.match_id for m in matches]
+        if len(ids) != len(set(ids)):
+            raise ValueError("match_id values must be unique")
+        return matches
+
 
 # --------------------------------------------------------------------------
 # Agent 5 - Challenger / Critic
 # --------------------------------------------------------------------------
 
-_CHALLENGE_TYPES = frozenset(
-    {
-        "contradictory_evidence",
-        "overstated_severity",
-        "alternative_explanation",
-        "insufficient_evidence",
-        "irrelevant_citation",
-        "missing_information",
-        "correlation_not_causation",
-    }
-)
+ChallengeType = Literal[
+    "contradictory_evidence",
+    "overstated_severity",
+    "alternative_explanation",
+    "insufficient_evidence",
+    "irrelevant_citation",
+    "missing_information",
+    "correlation_not_causation",
+]
 
 
 class Challenge(ArgusModel):
@@ -283,7 +292,7 @@ class Challenge(ArgusModel):
 
     challenge_id: Identifier
     risk_id: Identifier
-    challenge_type: str = Field(max_length=40)
+    challenge_type: ChallengeType
     argument: str = Field(min_length=40, max_length=1600)
     counter_evidence_ids: list[Identifier] = Field(default_factory=list, max_length=15)
     suggested_revision: str = Field(default="", max_length=800)
@@ -293,19 +302,20 @@ class Challenge(ArgusModel):
         description="True when the challenge cannot be settled with available evidence.",
     )
 
-    @field_validator("challenge_type")
-    @classmethod
-    def _known_type(cls, value: str) -> str:
-        if value not in _CHALLENGE_TYPES:
-            raise ValueError(f"challenge_type must be one of {sorted(_CHALLENGE_TYPES)}")
-        return value
-
 
 class ChallengeReport(ArgusModel):
     """Output of Agent 5."""
 
     challenges: list[Challenge] = Field(default_factory=list, max_length=30)
     unresolved_contradictions: list[str] = Field(default_factory=list, max_length=15)
+
+    @field_validator("challenges")
+    @classmethod
+    def _unique_challenge_ids(cls, items: list[Challenge]) -> list[Challenge]:
+        ids = [c.challenge_id for c in items]
+        if len(ids) != len(set(ids)):
+            raise ValueError("challenge_id values must be unique")
+        return items
 
 
 # --------------------------------------------------------------------------
@@ -331,6 +341,14 @@ class VerificationReport(ArgusModel):
 
     verifications: list[ClaimVerification] = Field(default_factory=list, max_length=30)
 
+    @field_validator("verifications")
+    @classmethod
+    def _unique_verification_ids(cls, items: list[ClaimVerification]) -> list[ClaimVerification]:
+        ids = [v.verification_id for v in items]
+        if len(ids) != len(set(ids)):
+            raise ValueError("verification_id values must be unique")
+        return items
+
 
 # --------------------------------------------------------------------------
 # Agent 7 - Risk Synthesis
@@ -350,14 +368,7 @@ class ScoreFactor(ArgusModel):
     label: str = Field(max_length=120)
     detail: str = Field(max_length=600)
     contribution: float = Field(ge=-100.0, le=100.0)
-    direction: str = Field(max_length=16)
-
-    @field_validator("direction")
-    @classmethod
-    def _known_direction(cls, value: str) -> str:
-        if value not in {"increases", "decreases", "neutral"}:
-            raise ValueError("direction must be increases, decreases or neutral")
-        return value
+    direction: Literal["increases", "decreases", "neutral"]
 
 
 class CoverageItem(ArgusModel):

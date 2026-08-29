@@ -252,24 +252,33 @@ attached ([`ai/scoring/uncertainty.py`](ai/scoring/uncertainty.py)).
   model, escalation rules, the prompt trust boundary, citation integrity. These
   need no model and run identically on any clone.
 - **8 model-dependent cases** — structured-output conformance, contradiction
-  detection, and three prompt-injection cases. These need a live backend or
-  recordings, and are reported as **skipped — never as passed** — when neither
-  is available.
+  detection, and three prompt-injection cases. These need a live backend or the
+  recordings shipped in `data/recordings`, and are reported as **skipped — never
+  as passed** — if neither is available.
 
 Two figures are always shown together: **pass rate** over executed cases, and
 **coverage** — how much of the suite actually ran. A run that skipped most of
 its cases cannot present itself as a strong result.
 
-Current result on a clone with no API key:
+Current result on a clone with **no API key**, replaying the shipped recordings:
 
 ```
-TOTAL                  45/45 pass    100%   (8 skipped, 0 errored)
-suite coverage         85% of cases executed
+TOTAL                  53/53 pass   100%   (0 skipped, 0 errored)
+suite coverage         100% of cases executed
 ```
 
-The suite has already earned its place: it caught a mis-calibration where a
-severe, well-evidenced finding could not reach a High rating — contradicting the
-scoring engine's own documented design. The engine was fixed, not the test.
+### What the suite actually caught
+
+It has earned its place several times over, and every one of these was fixed in
+the system rather than in the test:
+
+| Found | Defect |
+|---|---|
+| Scoring cases | A severe, well-evidenced finding could not reach High — contradicting the engine's own documented design. Weights rebalanced. |
+| Injection case `inj-012` | A document instructing the model to *suppress* a category succeeded. The trust boundary said nothing about instructions asking for **less**. Fixed and re-measured. |
+| Integration suite | A LangGraph node name colliding with a state key, and a computed score silently dropped because it was passed through an undeclared state key. |
+| Live running | Agents deriving identifiers from chunk locations, causing every policy match to be orphaned and — separately — a primary key collision that aborted a completed investigation. |
+| Live running | A closed vocabulary enforced by a Python validator never reached the JSON Schema, so the model could not honour a rule it was never shown. Converted to `Literal` types. |
 
 ---
 

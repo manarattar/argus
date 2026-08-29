@@ -1,0 +1,11 @@
+{
+  "fingerprint": "e9b31bda247374690582354b4c740ef2",
+  "purpose": "verify",
+  "model": "gpt-4o-mini-2024-07-18",
+  "backend": "openai-compatible",
+  "text": "{\n  \"verifications\": [\n    {\n      \"verification_id\": \"V1\",\n      \"risk_id\": \"R1\",\n      \"claim\": \"Northstar Manufacturing B.V. has experienced a significant rise in leverage, with total borrowings increasing from EUR 21.4 million in 2024 to EUR 48.3 million in 2025, leading to a net debt to EBITDA ratio of 2.4x.\",\n      \"status\": \"supported\",\n      \"reasoning\": \"Evidence E4 confirms the increase in total borrowings from EUR 21.4 million in 2024 to EUR 48.3 million in 2025. Evidence E5 supports the claim regarding the net debt to EBITDA ratio of 2.4x in 2025. Therefore, the claim is fully supported by the evidence.\",\n      \"citations_checked\": [\"E4\", \"E5\"],\n      \"irrelevant_citation_ids\": [],\n      \"downgrade_recommended\": false\n    },\n    {\n      \"verification_id\": \"V2\",\n      \"risk_id\": \"R2\",\n      \"claim\": \"Northstar's revenue concentration has increased, with the largest customer accounting for 39% of FY2025 revenue and the second-largest customer, accounting for 23%, currently under renegotiation.\",\n      \"status\": \"supported\",\n      \"reasoning\": \"Evidence E10 confirms that the largest customer accounts for 39% of FY2025 revenue, and evidence E11 states that the second-largest customer accounts for 23% and is under renegotiation. This directly supports the claim.\",\n      \"citations_checked\": [\"E10\", \"E11\"],\n      \"irrelevant_citation_ids\": [],\n      \"downgrade_recommended\": false\n    },\n    {\n      \"verification_id\": \"V3\",\n      \"risk_id\": \"R3\",\n      \"claim\": \"Northstar lacks an internal audit function, which is a significant gap in its control environment.\",\n      \"status\": \"supported\",\n      \"reasoning\": \"Evidence E15 explicitly states that Northstar has no internal audit function, confirming the claim about the significant gap in its control environment.\",\n      \"citations_checked\": [\"E15\"],\n      \"irrelevant_citation_ids\": [],\n      \"downgrade_recommended\": false\n    }\n  ]\n}",
+  "input_tokens": 3290,
+  "output_tokens": 480,
+  "latency_ms": 4611,
+  "version": 1
+}

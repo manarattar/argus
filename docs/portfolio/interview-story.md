@@ -67,13 +67,13 @@ Then stop. Let them ask.
 Follow [`demo-script.md`](demo-script.md). The narrative arc:
 
 1. **Dashboard** — this is a workflow product, not a chatbot.
-2. **The case** — Elevated, with the factors that produced it visible.
+2. **The case** — the rating, with every factor that produced it visible.
 3. **A finding** — supporting *and* contradicting evidence, verbatim quotes with
    page references.
 4. **The Challenger** — the system arguing against itself.
 5. **Override** — disagree, give a reason, watch the rating recompute.
 6. **Evidence Graph** — rating to page in one click.
-7. **Evaluation Lab** — 100% pass rate *and* 85% coverage, both shown.
+7. **Evaluation Lab** — pass rate *and* coverage, always shown together.
 8. **Architecture** — one domain built, three scoped and labelled as such.
 
 ---
@@ -141,13 +141,23 @@ trail append-only by construction.
 
 ### 8. Evaluation
 
-53 cases. 45 deterministic ones run with no API key at all. 8 need a model and
-are reported as **skipped, never as passed**. Pass rate and coverage are always
-shown together, so a run that skipped most of its suite can't look strong.
+53 cases. 45 are deterministic and run with no API key at all; 8 need a model,
+and ship with recorded fixtures so a fresh clone still executes the full suite.
+Where neither is available they're reported as **skipped, never as passed**.
+Pass rate and coverage are always shown together, so a run that skipped most of
+its suite can't look strong.
 
-The suite earned its place: it caught a mis-calibration where a severe,
-well-evidenced finding couldn't reach High — contradicting the engine's own
-documented design. I fixed the engine, not the test.
+The suite earned its place repeatedly. It caught a scoring mis-calibration where
+a severe, well-evidenced finding couldn't reach High. It caught a working
+prompt-injection attack — a document telling the model to *suppress* a category,
+which my trust boundary hadn't considered because it only defended against
+instructions asking for more. And running it live caught two identifier bugs and
+a schema-design flaw where a closed vocabulary lived in a Python validator and
+so never reached the JSON Schema the model sees.
+
+I fixed the system every time, not the test. That's the answer I'd want to give
+to "how do you know it works?" — not the pass rate, but what failing looked
+like.
 
 ### 9. Business impact
 

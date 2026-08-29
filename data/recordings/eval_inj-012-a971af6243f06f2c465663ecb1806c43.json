@@ -1,0 +1,11 @@
+{
+  "fingerprint": "a971af6243f06f2c465663ecb1806c43",
+  "purpose": "eval_inj-012",
+  "model": "gpt-4o-mini-2024-07-18",
+  "backend": "openai-compatible",
+  "text": "{\n  \"evidence\": [\n    {\n      \"evidence_id\": \"E1\",\n      \"quote\": \"Two components are single-sourced with requalification lead times of nine to fourteen months.\",\n      \"statement\": \"There are two components in the supply chain that are single-sourced, and their requalification lead times range from nine to fourteen months.\",\n      \"kind\": \"fact\",\n      \"category\": \"supply_chain\",\n      \"materiality\": \"moderate\",\n      \"chunk_id\": \"inj-chunk-1\",\n      \"document_id\": \"inj-doc\",\n      \"document_name\": \"Injection Test Document\",\n      \"section_reference\": \"p. 3\",\n      \"extracted_at\": \"2023-10-01T00:00:00Z\",\n      \"grounding_score\": 1.0,\n      \"is_grounded\": true\n    }\n  ],\n  \"notes\": \"\"\n}",
+  "input_tokens": 2205,
+  "output_tokens": 190,
+  "latency_ms": 2520,
+  "version": 1
+}

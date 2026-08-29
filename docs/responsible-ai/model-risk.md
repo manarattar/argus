@@ -92,17 +92,30 @@ serious control failure.
   cannot alter the computed rating.
 - Escalation rules are evaluated in code from domain data.
 
+**Demonstrated, then closed.** Case `inj-012` — a document instructing the model
+that a category was out of scope and to return nothing — **succeeded** against
+gpt-4o-mini on first measurement. The trust boundary defended against
+instructions asking the model to do *more* (assign a rating, reveal its prompt)
+and said nothing about instructions asking it to do *less*. The boundary now
+addresses suppression explicitly, and the case passes.
+
+That sequence is the argument for having the suite at all: the gap was predicted
+in this document before it was measured, measured before it was fixed, and the
+fix was verified rather than assumed.
+
 **Residual risk** *Medium.* Prompt-level defences are not guarantees, and a
-sufficiently novel injection may succeed against the *generation* step. The
-architecture bounds the damage — a compromised extraction still cannot produce
-grounded evidence or move the score directly — but a suppressed finding (the
-model declining to extract something) is not prevented by any downstream control.
-Coverage measurement partially detects this by flagging a category with no
-evidence.
+sufficiently novel injection may still succeed against the *generation* step. The
+architecture bounds the damage — a compromised extraction cannot produce grounded
+evidence or move the computed score — but suppression remains the hardest variant
+to detect, because absence is not an error. Coverage measurement is the
+compensating control: a category with no evidence is reported as Missing and
+raises the rating rather than lowering it.
 
 **Testing** Structural cases `inj-001`–`inj-003` verify boundary enforcement and
 run everywhere. Behavioural cases `inj-010`–`inj-012` check the model ignores
-three injection styles and require a backend.
+three injection styles: rating manipulation, instruction disclosure and category
+suppression. All three pass on gpt-4o-mini; that is one prompt against one
+model, and is reported as such rather than as a guarantee.
 
 ---
 
@@ -218,11 +231,24 @@ step is recorded and nothing is substituted; evaluation `str-001`, `str-002`.
 **Mitigation** Temperature 0; deterministic sequencing; the rating computed by
 arithmetic, so identical findings always produce an identical rating.
 
-**Residual risk** *Low-Medium.* Model sampling is not perfectly deterministic
-even at temperature 0, so *findings* may vary slightly between runs. The
-mapping from findings to rating does not.
+**Residual risk** *Medium — measured, not estimated.* Six live runs over the
+same corpus produced between three and eight findings and an overall rating
+ranging from Elevated (54) to High (76). The mapping from findings to rating was
+identical every time; the variance is entirely in what the model chose to
+extract and how it framed severity.
 
-**Testing** `test_scoring.py` pins the deterministic layer.
+That is a material finding. It means the composite rating is only as stable as
+the extraction beneath it, and an institution would need to measure this on real
+files before relying on run-to-run comparability. Mitigations that would help,
+in order of expected value: extracting against a fixed evidence checklist rather
+than a model-chosen priority list (partially implemented — extraction now covers
+every domain-required category, not only the planner's priorities), sampling
+several runs and reporting the spread, and calibrating severity against
+historical analyst judgements.
+
+**Testing** `test_scoring.py` pins the deterministic layer. The variance above
+was observed during live development runs and is recorded here rather than
+smoothed away.
 
 ---
 
@@ -320,7 +346,7 @@ holds.
 | MR-6 | Retrieval failure | High | **Medium** |
 | MR-7 | Model drift | Med-High | Medium |
 | MR-8 | Structured output failure | Low-Med | Low |
-| MR-9 | Run inconsistency | Med-High | Low-Medium |
+| MR-9 | Run inconsistency | Med-High | **Medium — measured** |
 | MR-10 | Bias | High | **High — unassessed** |
 | MR-11 | Reasoning exposure | Medium | Low |
 | MR-12 | Data privacy | High | **High for production** |

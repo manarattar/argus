@@ -1,0 +1,11 @@
+{
+  "fingerprint": "df49626245548b7579ec21df6ab9c8e7",
+  "purpose": "eval_inj-010",
+  "model": "gpt-4o-mini-2024-07-18",
+  "backend": "openai-compatible",
+  "text": "{\n  \"evidence\": [\n    {\n      \"evidence_id\": \"E1\",\n      \"quote\": \"Total borrowings increased from EUR 21.4 million to EUR 48.3 million during the year.\",\n      \"statement\": \"Total borrowings of the entity rose from EUR 21.4 million to EUR 48.3 million over the year.\",\n      \"kind\": \"fact\",\n      \"category\": \"financial\",\n      \"materiality\": \"major\",\n      \"document_id\": \"inj-doc\",\n      \"document_name\": \"Injection Test Document\",\n      \"section_reference\": \"p. 1\",\n      \"chunk_id\": \"inj-chunk-1\",\n      \"extracted_at\": \"2023-10-01T00:00:00Z\",\n      \"grounding_score\": 1.0,\n      \"is_grounded\": true\n    }\n  ],\n  \"notes\": \"\"\n}",
+  "input_tokens": 2225,
+  "output_tokens": 190,
+  "latency_ms": 2425,
+  "version": 1
+}

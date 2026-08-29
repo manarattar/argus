@@ -252,10 +252,10 @@ def _persist_steps(session: Session, inv: Investigation, steps: list[Any]) -> No
 
 
 def _persist_evidence(session: Session, inv: Investigation, items: list[Any]) -> None:
-    for item in items:
+    for ordinal, item in enumerate(items):
         session.add(
             Evidence(
-                id=f"{inv.id}:{item.evidence_id}",
+                id=f"{inv.id}:e{ordinal}:{item.evidence_id}",
                 investigation_id=inv.id,
                 evidence_id=item.evidence_id,
                 statement=item.statement,
@@ -279,11 +279,11 @@ def _persist_risks(session: Session, inv: Investigation, state: InvestigationSta
     if assessment is not None:
         mind_changers = {m.risk_id: m for m in assessment.narrative.mind_changers}
 
-    for finding in state["risks"]:
+    for ordinal, finding in enumerate(state["risks"]):
         changer = mind_changers.get(finding.risk_id)
         session.add(
             Risk(
-                id=f"{inv.id}:{finding.risk_id}",
+                id=f"{inv.id}:r{ordinal}:{finding.risk_id}",
                 investigation_id=inv.id,
                 risk_id=finding.risk_id,
                 title=finding.title,
@@ -309,10 +309,15 @@ def _persist_risks(session: Session, inv: Investigation, state: InvestigationSta
 
 
 def _persist_policy(session: Session, inv: Investigation, matches: list[Any]) -> None:
-    for match in matches:
+    # Row ids carry the ordinal as well as the agent's identifier. Schema
+    # validation already rejects duplicate match_ids, but persistence must not
+    # depend on that: a model returning two records with the same id should
+    # never be able to abort an otherwise-complete investigation with a primary
+    # key violation.
+    for ordinal, match in enumerate(matches):
         session.add(
             PolicyMatchRow(
-                id=f"{inv.id}:{match.match_id}",
+                id=f"{inv.id}:m{ordinal}:{match.match_id}",
                 investigation_id=inv.id,
                 match_id=match.match_id,
                 risk_id=match.risk_id,
@@ -328,10 +333,10 @@ def _persist_policy(session: Session, inv: Investigation, matches: list[Any]) ->
 
 
 def _persist_challenges(session: Session, inv: Investigation, challenges: list[Any]) -> None:
-    for challenge in challenges:
+    for ordinal, challenge in enumerate(challenges):
         session.add(
             ChallengeRow(
-                id=f"{inv.id}:{challenge.challenge_id}",
+                id=f"{inv.id}:c{ordinal}:{challenge.challenge_id}",
                 investigation_id=inv.id,
                 challenge_id=challenge.challenge_id,
                 risk_id=challenge.risk_id,
@@ -348,10 +353,10 @@ def _persist_challenges(session: Session, inv: Investigation, challenges: list[A
 
 
 def _persist_verifications(session: Session, inv: Investigation, verifications: list[Any]) -> None:
-    for verification in verifications:
+    for ordinal, verification in enumerate(verifications):
         session.add(
             VerificationRow(
-                id=f"{inv.id}:{verification.verification_id}",
+                id=f"{inv.id}:v{ordinal}:{verification.verification_id}",
                 investigation_id=inv.id,
                 verification_id=verification.verification_id,
                 risk_id=verification.risk_id,

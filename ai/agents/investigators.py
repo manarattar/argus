@@ -36,6 +36,7 @@ from ai.prompts.library import (
 )
 from ai.providers.structured import ModelT, StructuredResult, generate_structured
 from ai.retrieval.search import SearchHit
+from ai.schemas.enums import RiskCategory
 from ai.schemas.models import (
     Challenge,
     ChallengeReport,
@@ -54,7 +55,7 @@ from ai.schemas.models import (
 
 # How many chunks each retrieval-backed agent pulls. Sized so the prompt stays
 # well inside context while covering the corpus for a review of this shape.
-EVIDENCE_TOP_K = 6
+EVIDENCE_TOP_K = 9
 POLICY_TOP_K = 4
 
 
@@ -136,7 +137,16 @@ def extract_evidence(
     seen: dict[str, SearchHit] = {}
     qualities: list[float] = []
 
-    for category in plan.priority_categories:
+    # Retrieve for the planner's priorities *and* for every category the domain
+    # says a complete file must evidence. The planner orders the work; it does
+    # not get to narrow it. Without this, a category the planner overlooked is
+    # never searched, and the resulting coverage gap is indistinguishable from
+    # the document genuinely not containing it - which is the more alarming of
+    # the two readings and the wrong one.
+    required = [e.category for e in ctx.domain.expected_evidence if e.required]
+    categories: list[RiskCategory] = list(dict.fromkeys([*plan.priority_categories, *required]))
+
+    for category in categories:
         expected = [e for e in ctx.domain.expected_evidence if e.category == category]
         terms = " ".join(e.description for e in expected) or category.label
         query = f"{category.label} {terms}"
@@ -158,14 +168,24 @@ def extract_evidence(
 {plan.objective}
 
 ## Priority categories
-{', '.join(c.value for c in plan.priority_categories)}
+{', '.join(c.value for c in categories)}
 
 ## Retrieved document sections
 {render_hits(hits)}
 
 Extract the material evidence. Copy `chunk_id`, `document_id`, `document_name`
 and `section_reference` exactly as given in each block. Every quote must be
-verbatim text from the block you cite."""
+verbatim text from the block you cite.
+
+Cover every priority category listed above that the sections actually speak to -
+a category left with no evidence is reported to the analyst as a gap in the
+file, so leaving one out because you did not look is misleading.
+
+For each category, extract the evidence that cuts both ways. Buffer stock
+against a supply dependency, covenant headroom against rising leverage, closed
+findings against a control weakness: these are as material as the exposures
+themselves, and an extraction containing only adverse statements is a sign of
+biased reading rather than of a risky subject."""
 
     result = _run(ctx, EVIDENCE_EXTRACTOR, EvidenceExtraction, user, "evidence")
     return result, retrieval_quality

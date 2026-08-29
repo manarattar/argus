@@ -1,0 +1,11 @@
+{
+  "fingerprint": "0f2648a3c3f4a06b9d3a7fc377043dc1",
+  "purpose": "eval_con-002",
+  "model": "gpt-4o-mini-2024-07-18",
+  "backend": "openai-compatible",
+  "text": "{\n  \"challenges\": [\n    {\n      \"challenge_id\": \"C1\",\n      \"risk_id\": \"R1\",\n      \"challenge_type\": \"overstated_severity\",\n      \"argument\": \"The conclusion of a systemic control failure across the organization is not fully supported by the evidence. While there is a significant deficiency noted in the segregation of duties at one facility, this does not necessarily indicate a pervasive breakdown across all functions and jurisdictions. Additionally, the auditor issued an unqualified opinion on the FY2025 financial statements, suggesting that overall financial reporting may still be reliable despite the identified deficiencies.\",\n      \"counter_evidence_ids\": [\n        \"E2\"\n      ],\n      \"suggested_revision\": \"Revise the severity from 'severe' to 'moderate' to reflect the limited scope of the identified deficiencies and the unqualified audit opinion.\",\n      \"proposed_severity\": \"moderate\",\n      \"unresolved\": false\n    }\n  ],\n  \"unresolved_contradictions\": []\n}",
+  "input_tokens": 1705,
+  "output_tokens": 207,
+  "latency_ms": 2412,
+  "version": 1
+}
