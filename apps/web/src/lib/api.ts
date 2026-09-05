@@ -26,8 +26,40 @@ import type {
   ValueCaseResult,
 } from './types';
 
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ?? 'http://127.0.0.1:8000';
+/**
+ * Where the API lives, resolved differently on each side of the render.
+ *
+ * On the server the base is a real URL read at runtime, because a Server
+ * Component runs in Node and cannot resolve a relative path.
+ *
+ * In the browser the base is empty, so every call goes to the page's own origin
+ * and the Route Handler at `app/api/[...path]` forwards it. That removes two
+ * problems at once: the API address is never baked into the client bundle (so
+ * the backend can move without rebuilding the frontend), and the browser makes
+ * no cross-origin request, so the deployment needs no CORS grant.
+ */
+
+/**
+ * Normalise a configured API address.
+ *
+ * Some hosts expose a service address as a bare `host` or `host:port` with no
+ * scheme (Render's `fromService` is one), and `fetch` rejects that. Assume
+ * HTTPS unless it is plainly a local address, which keeps a single environment
+ * variable working across local, compose and hosted deployments.
+ */
+function normaliseBase(raw: string): string {
+  const value = raw.trim().replace(/\/$/, '');
+  if (!value) return 'http://127.0.0.1:8000';
+  if (/^https?:\/\//.test(value)) return value;
+  const isLocal = /^(localhost|127\.0\.0\.1|\[::1\]|[a-z0-9-]+):\d+$/i.test(value);
+  return `${isLocal ? 'http' : 'https'}://${value}`;
+}
+
+const SERVER_API_BASE = normaliseBase(
+  process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '',
+);
+
+export const API_BASE = typeof window === 'undefined' ? SERVER_API_BASE : '';
 
 export class ApiError extends Error {
   constructor(

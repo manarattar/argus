@@ -59,13 +59,13 @@ services:
     build:
       context: .
       dockerfile: docker/web.Dockerfile
-      args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
     depends_on:
       api:
         condition: service_healthy
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      # Server-side calls go straight to the api service on the compose
+      # network; browser calls hit this app's own origin and are proxied.
+      API_BASE_URL: http://api:8000
     ports:
       - '3000:3000'
 

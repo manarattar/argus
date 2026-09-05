@@ -42,6 +42,9 @@ services:
         value: 0.0.0.0
       - key: API_PORT
         value: '8000'
+      # The browser only ever calls the web app's own origin, which proxies
+      # to this service, so no cross-origin grant is needed. Kept narrow rather
+      # than removed, in case the API is ever called directly.
       - key: CORS_ORIGINS
         value: https://argus.manarattar.com
       - key: LOG_LEVEL
@@ -60,5 +63,12 @@ services:
     region: frankfurt
     autoDeploy: true
     envVars:
-      - key: NEXT_PUBLIC_API_BASE_URL
-        value: https://argus-api.onrender.com
+      # Read at runtime by next.config.mjs, which proxies /api to the backend.
+      # Nothing about the API location is baked into the client bundle, so this
+      # can change without a rebuild. Point it at whatever Render named the API
+      # service if the default below is not correct.
+      - key: API_BASE_URL
+        fromService:
+          type: web
+          name: argus-api
+          property: host
