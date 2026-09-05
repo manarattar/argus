@@ -9,7 +9,10 @@ RUN npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
 
 FROM node:20-alpine AS builder
 
-ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+# Next.js inlines NEXT_PUBLIC_* into the client bundle at build time, so this
+# has to be correct when the image is built, not when it runs. The default is
+# the deployed API; docker-compose overrides it for local use.
+ARG NEXT_PUBLIC_API_BASE_URL=https://argus-api.onrender.com
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
     NEXT_TELEMETRY_DISABLED=1
 

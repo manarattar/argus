@@ -1,0 +1,45 @@
+# Keep the build context small and the image reproducible.
+#
+# The local SQLite database is excluded deliberately: the container seeds itself
+# on boot, so shipping a developer's database would make the image depend on
+# whoever happened to build it.
+
+.git
+.gitattributes
+.github
+
+# Local environments and caches
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Node
+node_modules
+apps/web/.next
+apps/web/out
+playwright-report
+test-results
+
+# Secrets - never in an image
+.env
+.env.*
+!.env.example
+
+# Developer database and reports
+data/argus.db
+data/argus.db-wal
+data/argus.db-shm
+eval-report.json
+
+# Build artefacts that are not needed at runtime
+portfolio
+*.pdf
+*.log
+*.aux
+*.out
