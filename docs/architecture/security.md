@@ -48,6 +48,14 @@ Document text is delimited and labelled as data in every prompt. Attempts to
 close the boundary tag early are escaped. The report renderer handles a fixed
 Markdown subset and cannot render raw HTML from the corpus.
 
+### Schema changes
+
+Migrations are managed by Alembic (`apps/api/alembic`), and `env.py` takes its
+database URL from application settings so the two can never disagree about the
+target. Docker applies `alembic upgrade head` before starting the API, and
+`make lint` runs `alembic check` so a model change that lacks a migration fails
+the build rather than drifting silently.
+
 ### Supply chain
 
 All Python and Node dependencies pinned to exact versions. Containers run as
@@ -115,11 +123,22 @@ Required: database-level enforcement — revoked UPDATE/DELETE grants on the aud
 table, append-only storage, or hash chaining. Application-level discipline is not
 a control against a compromised application.
 
-### Rate limiting
+### Rate limiting — implemented, but only to prototype scope
 
-Currently none on model-backed endpoints. Required: per-user and per-tenant
-limits on investigation, ask and challenge, since each triggers billable
-inference. `slowapi` is already a dependency for this purpose.
+The four endpoints that trigger inference (investigate, ask, challenge, run
+evaluation) are limited by `core/limits.py`, applied as a route dependency. Read
+endpoints are deliberately not limited: they serve stored rows, cost nothing,
+and throttling them would only degrade the interface.
+
+What exists is right for a single-instance prototype and wrong for anything
+else. The counter is an in-process sliding window keyed on client address: it
+does not survive a restart, does not coordinate across replicas, and puts every
+client behind a shared NAT in one bucket. The `X-Forwarded-For` key is also
+spoofable behind an untrusted proxy.
+
+Required for production: a shared store (Redis) so the limit holds across
+replicas, a key based on the authenticated principal rather than the address,
+and a per-tenant spend budget alongside the request rate.
 
 ### Recordings
 
@@ -146,8 +165,11 @@ resolve a fabricated citation, or move the computed rating.
 SQL, and never rendered as raw HTML. The report renderer handles a fixed
 Markdown subset by design.
 
-**Cost as an attack surface.** Without rate limiting, an authenticated user could
-drive spend through repeated investigations. Noted above as required work.
+**Cost as an attack surface.** Every investigation, question and challenge
+triggers billable inference, so an unbounded caller is a spend attack rather than
+merely a nuisance. The four inference endpoints are rate limited; the limiter is
+per-process and address-keyed, which bounds the obvious case and not a
+distributed one. See the rate limiting section above.
 
 ---
 
@@ -166,4 +188,4 @@ drive spend through repeated investigations. Noted above as required work.
 | PII handling | Synthetic data only | Classification, redaction, egress control |
 | Retention | **Unbounded** | Policy and deletion workflow |
 | Audit immutability | Code-enforced | Database-enforced |
-| Rate limiting | **Absent** | Per-user and per-tenant |
+| Rate limiting | In-process, on inference endpoints | Shared store, per-principal, spend budget |

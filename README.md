@@ -403,7 +403,8 @@ cases need a model.
 Appropriate for a prototype, and honest about it: CORS restricted by
 configuration, security headers set, request bodies bounded, upload types
 constrained, opaque error responses with a traceable request id, no secrets in
-the repository, parameterised queries throughout.
+the repository, parameterised queries throughout, and rate limiting on the four
+endpoints that trigger billable inference.
 
 **Authentication is deliberately absent.**
 [`docs/architecture/security.md`](docs/architecture/security.md) records exactly

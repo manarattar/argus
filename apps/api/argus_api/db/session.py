@@ -1,9 +1,17 @@
 """Database engine and session management.
 
-Schema creation is handled by Alembic in any deployed environment. For local
-development against SQLite, :func:`init_db` creates the schema directly so that
-``make seed`` works on a fresh clone without a migration step - the migration
-chain still exists and is what Docker and Postgres use.
+Two paths to a schema, deliberately:
+
+* **Migrations** (``make migrate``, or ``alembic upgrade head``) are the path
+  every deployed environment uses. ``apps/api/alembic`` holds the revision
+  chain, and ``env.py`` takes its URL from application settings so the app and
+  the migration tool can never disagree about the target database. Docker runs
+  ``alembic upgrade head`` before starting the API.
+* **Direct creation** (:func:`init_db`) exists so ``make seed`` works on a fresh
+  clone without a migration step. It is convenience for local SQLite only.
+
+The two are kept consistent by ``alembic check``, which fails if the models have
+drifted from the revision chain. ``make lint`` runs it.
 """
 
 from __future__ import annotations

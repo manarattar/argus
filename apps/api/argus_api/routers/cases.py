@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from argus_api.core.limits import enforce_inference_limit
 from argus_api.db.models import Case, Document, Investigation
 from argus_api.db.session import get_db
 from argus_api.serializers import (
@@ -95,7 +96,11 @@ def get_document(case_id: str, document_id: str, session: DbSession) -> dict[str
     }
 
 
-@router.post("/{case_id}/investigations", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{case_id}/investigations",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(enforce_inference_limit)],
+)
 def start_investigation(
     case_id: str, payload: RunInvestigationRequest, session: DbSession
 ) -> dict[str, Any]:

@@ -37,13 +37,13 @@ COPY ai ./ai
 COPY apps/api ./apps/api
 COPY scripts ./scripts
 COPY data ./data
-COPY pyproject.toml ./
+COPY pyproject.toml alembic.ini ./
 
 RUN chown -R argus:argus /app
 USER argus
 
 EXPOSE 8000
 
-# The application creates any missing tables on startup, so a fresh volume
-# comes up working rather than erroring.
-CMD ["uvicorn", "argus_api.main:app", "--app-dir", "apps/api", "--host", "0.0.0.0", "--port", "8000"]
+# Migrations run before the server starts, so a fresh volume comes up with the
+# current schema and an existing one is upgraded in place.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn argus_api.main:app --app-dir apps/api --host 0.0.0.0 --port 8000"]

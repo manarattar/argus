@@ -68,6 +68,14 @@ seed: ## Load the demo corpus (documents, policies, case)
 seed-full: ## Load the corpus and run the investigation graph
 	$(PY) -m scripts.seed --reset --investigate
 
+.PHONY: migrate
+migrate: ## Apply database migrations
+	$(PY) -m alembic upgrade head
+
+.PHONY: revision
+revision: ## Generate a migration from model changes (m="message")
+	$(PY) -m alembic revision --autogenerate -m "$(m)"
+
 .PHONY: doctor
 doctor: ## Report the resolved runtime configuration (no secrets shown)
 	$(PY) -m scripts.doctor
@@ -121,6 +129,7 @@ eval-report: ## Run the evaluation suite and write a JSON report
 
 .PHONY: lint
 lint: ## Lint and type-check both applications
+	$(PY) -m alembic check
 	$(PY) -m ruff check ai apps scripts tests
 	$(PY) -m ruff format --check ai apps scripts tests
 	$(PY) -m mypy ai apps/api/argus_api

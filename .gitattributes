@@ -1,0 +1,23 @@
+# Normalise line endings so diffs show real changes rather than CRLF churn.
+# The repository stores LF; Git converts on checkout where a platform needs it.
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF so they run natively.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary: never touch these.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.db binary
+
+# Generated: collapse in diffs and exclude from language statistics.
+package-lock.json linguist-generated=true -diff
+apps/api/alembic/script.py.mako linguist-vendored=true

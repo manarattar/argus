@@ -9,6 +9,10 @@ bounded, and unexpected exceptions return an opaque message while the detail
 goes to the log. Authentication is deliberately absent - see
 docs/architecture/security.md for exactly what would need to change before this
 ran anywhere real.
+
+Rate limiting is applied to the endpoints that trigger inference, because those
+cost money and an unbounded caller turns cost into an attack surface. Read
+endpoints serve stored rows and are deliberately not throttled.
 """
 
 from __future__ import annotations

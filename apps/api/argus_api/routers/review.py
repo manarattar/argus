@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from ai.providers.base import LLMError
 from ai.providers.structured import SchemaValidationFailure
 from ai.schemas.enums import Likelihood, ReviewDecision, Severity
+from argus_api.core.limits import enforce_inference_limit
 from argus_api.db.models import Case, ChallengeRow, Investigation, Risk
 from argus_api.db.session import get_db
 from argus_api.serializers import (
@@ -196,7 +197,10 @@ def add_note(
     return {"finding": risk_payload(risk)}
 
 
-@router.post("/{investigation_id}/findings/{risk_id}/challenge")
+@router.post(
+    "/{investigation_id}/findings/{risk_id}/challenge",
+    dependencies=[Depends(enforce_inference_limit)],
+)
 def request_challenge(investigation_id: str, risk_id: str, session: DbSession) -> dict[str, Any]:
     """Ask the Challenger for the strongest case against one finding."""
     investigation, case = _load(session, investigation_id)

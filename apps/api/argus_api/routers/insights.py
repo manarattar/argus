@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from ai.providers.base import LLMError
 from ai.providers.structured import SchemaValidationFailure
+from argus_api.core.limits import enforce_inference_limit
 from argus_api.db.models import Investigation
 from argus_api.db.session import get_db
 from argus_api.services import audit
@@ -132,7 +133,7 @@ def post_scenario(
     return result.to_dict()
 
 
-@router.post("/{investigation_id}/ask")
+@router.post("/{investigation_id}/ask", dependencies=[Depends(enforce_inference_limit)])
 def ask(investigation_id: str, payload: QuestionRequest, session: DbSession) -> dict[str, Any]:
     """Answer an analyst question from the case record."""
     investigation = _load(session, investigation_id)

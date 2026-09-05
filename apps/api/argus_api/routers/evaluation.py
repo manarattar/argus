@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ai.evaluators.harness import load_cases
+from argus_api.core.limits import enforce_inference_limit
 from argus_api.core.settings import get_settings
 from argus_api.db.models import EvalRun
 from argus_api.db.session import get_db
@@ -83,7 +84,11 @@ def get_run(run_id: str, session: DbSession) -> dict[str, Any]:
     return {"run": evaluation.serialise_run(session, run)}
 
 
-@router.post("/run", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/run",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(enforce_inference_limit)],
+)
 def post_run(payload: RunRequest, session: DbSession) -> dict[str, Any]:
     """Execute the suite and persist the result.
 

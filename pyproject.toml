@@ -36,6 +36,9 @@ ignore = ["E203", "E501", "RUF012", "B008"]
 "ai/evaluators/checks.py" = ["ARG001"]
 # FastAPI passes arguments to lifespan and exception handlers by convention.
 "apps/api/argus_api/main.py" = ["ARG001"]
+# slowapi's decorator requires a `request` parameter on the handler signature
+# even when the handler itself never reads it.
+"apps/api/argus_api/routers/*.py" = ["ARG001"]
 
 [tool.ruff.format]
 quote-style = "double"
