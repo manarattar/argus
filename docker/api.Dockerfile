@@ -38,8 +38,15 @@ COPY apps/api ./apps/api
 COPY scripts ./scripts
 COPY data ./data
 COPY pyproject.toml alembic.ini ./
+
 COPY docker/entrypoint.sh /usr/local/bin/argus-entrypoint
-RUN chmod +x /usr/local/bin/argus-entrypoint
+# Strip carriage returns before making it executable. A checkout on Windows can
+# carry CRLF, which turns the shebang into "/bin/sh<CR>" and fails at runtime
+# with a bewildering "no such file or directory" naming a file that plainly
+# exists. Normalising here makes the image independent of how the source
+# arrived.
+RUN sed -i 's/\r$//' /usr/local/bin/argus-entrypoint \
+    && chmod +x /usr/local/bin/argus-entrypoint
 
 RUN chown -R argus:argus /app
 USER argus

@@ -50,8 +50,12 @@ PY
   fi
 fi
 
-echo "[argus] starting API on ${API_PORT:-8000}"
+# PORT is the convention on the host stack; API_PORT is this application's own
+# name for the same thing. Accept either, preferring PORT so the platform wins.
+LISTEN_PORT="${PORT:-${API_PORT:-8000}}"
+
+echo "[argus] starting API on ${LISTEN_PORT}"
 exec uvicorn argus_api.main:app \
   --app-dir apps/api \
   --host "${API_HOST:-0.0.0.0}" \
-  --port "${API_PORT:-8000}"
+  --port "${LISTEN_PORT}"
