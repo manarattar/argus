@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
-import { Sidebar, ThemeToggle } from '@/components/shell/navigation';
+import { MobileNav, Sidebar, ThemeToggle } from '@/components/shell/navigation';
 import { getRuntime } from '@/lib/api';
 
 import './globals.css';
@@ -56,11 +56,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Sidebar runtime={runtime} />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-line bg-surface px-6">
-              <p className="truncate text-xs text-ink-muted">
-                Independent portfolio demonstration. All data is synthetic. Not affiliated with,
-                or endorsed by, any financial institution.
-              </p>
+            <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4 sm:gap-4 sm:px-6">
+              <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                <MobileNav runtime={runtime} />
+                <p className="truncate text-xs text-ink-muted">
+                  Independent portfolio demonstration. All data is synthetic. Not affiliated with,
+                  or endorsed by, any financial institution.
+                </p>
+              </div>
               <div className="flex shrink-0 items-center gap-3">
                 {runtime ? (
                   <span className="hidden text-2xs text-ink-subtle md:inline">
@@ -72,7 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </header>
 
             <main id="main" className="scroll-slim flex-1 overflow-y-auto bg-canvas">
-              <div className="mx-auto max-w-[1400px] px-6 py-7">{children}</div>
+              <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 sm:py-7">{children}</div>
             </main>
           </div>
         </div>
