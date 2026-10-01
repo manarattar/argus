@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * page (the runtime panel on a phone, say) are skipped.
  */
 
-type Step = { target: string; title: string; body: string; eyebrow?: string };
+type Step = { target: string; title: string; body: string; eyebrow?: string; fallback?: boolean };
 type Tour = { key: string; steps: Step[] };
 
 const OVERVIEW: Tour = {
@@ -35,9 +35,24 @@ const OVERVIEW: Tour = {
       body: 'Each row is one organisation being reviewed. Its rating is provisional and evidence strength tells you how well the file supports it. Open a case such as Northstar to inspect the reasoning.',
     },
     {
-      target: 'runtime',
+      target: 'risk',
+      title: 'Where the book is risky',
+      body: 'Provisional ratings across every investigation, from Low to High. A rating is computed by the scoring engine from the findings, so it shows where analyst attention is likely to be needed, not a final decision.',
+    },
+    {
+      target: 'health',
+      title: 'Is the system healthy?',
+      body: 'Step-level reliability across every run: how many steps executed, how many succeeded or failed, and how often the model output needed a retry. Use it to judge whether the AI itself behaved before trusting its answers.',
+    },
+    {
+      target: 'attention',
+      title: 'What needs a human',
+      body: 'Cases held by a control or waiting on an analyst decision. They do not clear themselves: ARGUS recommends, and a named person approves, adjusts, escalates or rejects at the review gate.',
+    },
+    {
+      target: 'runtime', fallback: true,
       title: 'Demo mode or live',
-      body: 'Demo mode replays recorded model responses, so the tour works without an API key. Live mode makes real model calls; this indicator tells you which produced the answers.',
+      body: 'Demo mode replays recorded model responses, so the tour works without an API key. Live mode makes real model calls. The indicator at the bottom of the menu tells you which produced the answers.',
     },
     { target: 'tour-button', title: 'Come back any time', body: 'Use How it works in the header to replay the tour for the page you are on.' },
   ],
@@ -165,7 +180,9 @@ export function Onboarding() {
 
   const begin = useCallback((tour: Tour) => {
     if (document.querySelector('.tour-layer')) return;
-    const steps = tour.steps.filter((step) => !step.target || find(step.target));
+    const steps = tour.steps
+      .filter((step) => !step.target || find(step.target) || step.fallback)
+      .map((step) => (step.target && !find(step.target) ? { ...step, target: '' } : step));
     if (steps.length === 0) return;
     returnFocus.current = document.activeElement;
     setIndex(0);

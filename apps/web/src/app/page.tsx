@@ -113,7 +113,7 @@ export default async function OverviewPage() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2" tour="cases">
           <CardHeader
             title="Recent investigations"
             description="Most recent runs, with the rating the scoring engine computed."
@@ -183,7 +183,7 @@ export default async function OverviewPage() {
         </Card>
 
         <div className="space-y-5">
-          <Card>
+          <Card tour="risk">
             <CardHeader
               title="Risk distribution"
               description="Provisional ratings across investigations."
@@ -211,7 +211,7 @@ export default async function OverviewPage() {
             </div>
           </Card>
 
-          <Card>
+          <Card tour="health">
             <CardHeader
               title="System health"
               description="Step-level reliability across every investigation."
@@ -247,7 +247,7 @@ export default async function OverviewPage() {
         </div>
       </div>
 
-      <Card className="mt-5">
+      <Card className="mt-5" tour="attention">
         <CardHeader
           title="Cases requiring attention"
           description="Held by a control, or waiting on a human decision. These do not clear themselves."
