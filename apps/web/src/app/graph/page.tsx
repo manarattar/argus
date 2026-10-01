@@ -18,7 +18,7 @@ export default async function GraphPage({
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Evidence Graph"
         title="Decision lineage"
         description="Every rating traces back through its findings, the evidence behind them and the documents that evidence came from. Nothing here is inferred - the pipeline stored citations as identifiers, so the lineage is a query."

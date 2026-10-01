@@ -10,7 +10,7 @@ export default async function AuditPage() {
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Audit"
         title="Audit trail"
         description="Append-only record of every action across every case: documents ingested, investigations run, findings adjusted, decisions taken. No code path in this application can update or delete an entry."

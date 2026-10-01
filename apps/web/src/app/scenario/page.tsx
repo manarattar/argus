@@ -17,7 +17,7 @@ export default async function ScenarioPage({
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Scenario Lab"
         title="What would change the assessment"
         description="Vary a structured input that the case evidence actually contains, and see the rating recomputed by the same deterministic engine. Simulations, not findings."

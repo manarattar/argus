@@ -83,14 +83,16 @@ export function PageHeader({
   title,
   description,
   actions,
+  tour,
 }: {
   eyebrow?: string;
   title: string;
   description?: ReactNode;
   actions?: ReactNode;
+  tour?: string;
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <header data-tour={tour} className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0 max-w-3xl">
         {eyebrow ? (
           <p className="mb-1.5 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">

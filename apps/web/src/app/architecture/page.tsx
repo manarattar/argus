@@ -28,7 +28,7 @@ export default async function ArchitecturePage() {
   if (!data) {
     return (
       <>
-        <PageHeader eyebrow="Architecture" title="How ARGUS is built" />
+        <PageHeader tour="page-header" eyebrow="Architecture" title="How ARGUS is built" />
         <EmptyState title="The API is not reachable" description="Start the backend and reload." />
       </>
     );
@@ -39,7 +39,7 @@ export default async function ArchitecturePage() {
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Architecture"
         title="How ARGUS is built"
         description="Read from the running system, not written by hand. Every capability, domain, prompt version and control below is reported by the code that implements it."

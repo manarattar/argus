@@ -26,7 +26,7 @@ export default async function OperationsPage() {
   if (!data) {
     return (
       <>
-        <PageHeader eyebrow="AI Operations" title="System operations" />
+        <PageHeader tour="page-header" eyebrow="AI Operations" title="System operations" />
         <EmptyState
           title="The API is not reachable"
           description="Start the backend and reload."
@@ -40,7 +40,7 @@ export default async function OperationsPage() {
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="AI Operations"
         title="System operations"
         description="Throughput, reliability, cost and human-override behaviour, computed from stored execution records."

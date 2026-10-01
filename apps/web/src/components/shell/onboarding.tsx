@@ -9,32 +9,37 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * page (the runtime panel on a phone, say) are skipped.
  */
 
-type Step = { target: string; title: string; body: string };
+type Step = { target: string; title: string; body: string; eyebrow?: string };
 type Tour = { key: string; steps: Step[] };
 
 const OVERVIEW: Tour = {
   key: 'argus.onboarded.v1',
   steps: [
     {
+      target: '', eyebrow: 'The idea', title: 'What is ARGUS?',
+      body: 'Counterparty-risk analysts spend days reading scattered documents. ARGUS reads a case file, links extracted evidence to source passages, checks policy, challenges its conclusions, and calculates a rating by arithmetic before a human decides. All data is synthetic; this is a portfolio demonstration.',
+    },
+    {
       target: 'nav',
-      title: 'Where things live',
-      body: 'Investigate holds the cases and their evidence. Assure and Explain open as menus when you need the evaluation, audit trail or architecture.',
+      title: 'Find your way around',
+      body: 'Investigate has Cases, Evidence Graph for tracing ratings to sources, and Scenario Lab for testing changes. Assure has Evaluation Lab for quality checks, AI Operations for run health, and Audit Trail for actions. Explain has Value Case for illustrative savings and Architecture for how the system fits together.',
     },
     {
       target: 'overview',
       title: 'The book at a glance',
-      body: 'Active cases, how many wait for a human decision, and how the ratings are spread. Nothing here is a final credit decision.',
+      body: 'These tiles count active cases, cases waiting for review, run time, analyst changes, evidence coverage, and estimated model cost. They describe the workload and system; none is a final credit decision.',
     },
     {
       target: 'cases',
       title: 'One row per counterparty',
-      body: 'Each row is a review of one organisation, with its provisional rating and how strong the evidence behind it is. Open one to see the file.',
+      body: 'Each row is one organisation being reviewed. Its rating is provisional and evidence strength tells you how well the file supports it. Open a case such as Northstar to inspect the reasoning.',
     },
     {
       target: 'runtime',
       title: 'Demo mode or live',
-      body: 'This always tells you whether the answers on screen come from recorded model responses or a live model. All data is synthetic.',
+      body: 'Demo mode replays recorded model responses, so the tour works without an API key. Live mode makes real model calls; this indicator tells you which produced the answers.',
     },
+    { target: 'tour-button', title: 'Come back any time', body: 'Use How it works in the header to replay the tour for the page you are on.' },
   ],
 };
 
@@ -44,7 +49,7 @@ const CASE: Tour = {
     {
       target: 'start',
       title: 'Run the investigation',
-      body: 'This starts the eight-step graph and takes a few seconds. The tour does not start it for you.',
+      body: 'Start the eight steps in order: plan the review, extract evidence, identify risks, match policy, challenge findings, verify sources, calculate a score, and synthesise a report. The tour leaves the run under your control.',
     },
     {
       target: 'case-summary',
@@ -52,15 +57,23 @@ const CASE: Tour = {
       body: 'Computed by the scoring engine from the findings, policy matches and grounded evidence. It is not free text from the model.',
     },
     {
+      target: 'tab-assessment', title: 'Assessment', body: 'See the provisional rating, the main factors driving it, and how confident the system is in the evidence. Review weak support before making a decision.',
+    },
+    {
       target: 'tab-findings',
       title: 'Findings and the challenger',
-      body: 'Every risk the system found, and the second pass that argues against it. Unresolved challenges are counted at the top.',
+      body: 'Each risk has a severity and likelihood. A challenger pass argues against the finding so the analyst can spot weak or mistaken conclusions.',
     },
     {
       target: 'tab-evidence',
       title: 'Evidence with citations',
-      body: 'Each finding points back to the source passage it rests on, so a reviewer can check it rather than trust it.',
+      body: 'Every claim cites a passage in a source document. A grounding check verifies that the quoted passage really exists.',
     },
+    { target: 'tab-policy', title: 'Policy', body: 'See which findings match a policy clause and why. A match shows the rule behind a concern; it does not make the decision for you.' },
+    { target: 'tab-trace', title: 'Trace', body: 'Follow the run step by step, including time spent and any errors. This shows what the agents actually did and where a result may be incomplete.' },
+    { target: 'tab-ask', title: 'Ask ARGUS', body: 'Ask questions about this case. Answers are limited to case evidence and include citations you can open and check.' },
+    { target: 'tab-report', title: 'Report', body: 'Read the generated analyst memo. Check its claims and citations before using it in a review.' },
+    { target: 'tab-audit', title: 'Audit', body: 'This immutable event log records actions in order, including the actor and what changed. It lets a reviewer reconstruct the history.' },
     {
       target: 'review-gate',
       title: 'The human review gate',
@@ -69,15 +82,38 @@ const CASE: Tour = {
   ],
 };
 
+const CASES_OVERVIEW: Tour = { ...OVERVIEW, key: 'argus.tour.cases.v1' };
+
+const PAGE_TOURS: Record<string, Tour> = Object.fromEntries(
+  ([
+    ['graph', 'Evidence Graph', 'Follow a rating through findings and evidence to the exact source passage. This shows where each conclusion came from.'],
+    ['scenario', 'Scenario Lab', 'Change an input, such as a missing document or covenant breach, and see the projected effect on the rating. The underlying case is not changed.'],
+    ['evaluation', 'Evaluation Lab', 'The 53-case suite measures accuracy, whether claims cite real passages, and whether the challenger catches weak findings. It shows how the system is measured before it is trusted.'],
+    ['operations', 'AI Operations', 'Check how many runs complete, how long they take, their token cost, and their error rate. These numbers help find slow or failing steps.'],
+    ['audit', 'Audit Trail', 'See each recorded action in order, with who or what performed it. Use this history to trace how a case reached its current state.'],
+    ['value', 'Value Case', 'This is an illustrative model of analyst hours saved, not a forecast. Change its assumptions to see how the estimate moves.'],
+    ['architecture', 'Architecture', 'See how the API, eight-step workflow, pgvector passage retrieval, and human review gate fit together. The diagram explains where evidence and decisions move.'],
+  ] as const).map(([path, title, body]) => [`/${path}`, {
+    key: `argus.tour.${path}.v1`,
+    steps: [
+      { target: '', title, body },
+      { target: 'page-header', title: 'Where to look', body: 'The heading and summary here say what the page shows. Everything below is built from the synthetic sample cases. Replay this guide any time with How it works.' },
+    ],
+  }]),
+);
+
 const EVENT = 'argus:tour';
 
 function tourFor(pathname: string): { tour: Tour; auto: boolean } {
+  if (PAGE_TOURS[pathname]) return { tour: PAGE_TOURS[pathname], auto: true };
   if (/^\/cases\/[^/]+/.test(pathname)) return { tour: CASE, auto: true };
-  if (pathname === '/' || pathname === '/cases') return { tour: OVERVIEW, auto: true };
+  if (pathname === '/') return { tour: OVERVIEW, auto: true };
+  if (pathname === '/cases') return { tour: CASES_OVERVIEW, auto: true };
   return { tour: OVERVIEW, auto: false };
 }
 
 function find(target: string): HTMLElement | null {
+  if (!target) return null;
   const nodes = Array.from(document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`));
   return (
     nodes.find((node) => {
@@ -107,6 +143,7 @@ export function TourButton() {
   return (
     <button
       type="button"
+      data-tour="tour-button"
       onClick={() => window.dispatchEvent(new Event(EVENT))}
       className="flex h-9 items-center rounded px-2.5 text-xs font-medium text-ink-muted transition-colors hover:bg-raised hover:text-ink"
     >
@@ -127,7 +164,8 @@ export function Onboarding() {
   const returnFocus = useRef<Element | null>(null);
 
   const begin = useCallback((tour: Tour) => {
-    const steps = tour.steps.filter((step) => find(step.target));
+    if (document.querySelector('.tour-layer')) return;
+    const steps = tour.steps.filter((step) => !step.target || find(step.target));
     if (steps.length === 0) return;
     returnFocus.current = document.activeElement;
     setIndex(0);
@@ -147,7 +185,7 @@ export function Onboarding() {
   useEffect(() => {
     const { tour, auto } = tourFor(pathname);
     if (!auto || seen(tour.key)) return;
-    const gate = tour === CASE ? 'case-summary' : tour === OVERVIEW && pathname === '/cases' ? 'cases' : 'nav';
+    const gate = tour === CASE ? 'case-summary' : pathname === '/cases' ? 'cases' : tour === OVERVIEW ? 'nav' : 'page-header';
     let tries = 0;
     const timer = window.setInterval(() => {
       tries += 1;
@@ -175,7 +213,15 @@ export function Onboarding() {
 
   const place = useCallback(() => {
     if (!run) return;
-    const el = find(run.steps[index]?.target ?? "");
+    const target = run.steps[index]?.target ?? '';
+    if (!target) {
+      setBox(null);
+      const phone = window.innerWidth <= 520;
+      setNarrow(phone);
+      setCardPos(phone ? null : { top: Math.max(12, (window.innerHeight - (cardRef.current?.offsetHeight ?? 220)) / 2), left: Math.max(12, (window.innerWidth - (cardRef.current?.offsetWidth ?? 340)) / 2) });
+      return;
+    }
+    const el = find(target);
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const pad = 6;
@@ -242,6 +288,7 @@ export function Onboarding() {
 
   return (
     <div className="tour-layer" role="dialog" aria-modal="true" aria-label="Guided tour">
+      {!step.target ? <div className="tour-backdrop" /> : null}
       {box ? (
         <div
           className="tour-spot"
@@ -256,6 +303,7 @@ export function Onboarding() {
         <div className="tour-count">
           {index + 1} / {run.steps.length}
         </div>
+        {step.eyebrow ? <div className="tour-count">{step.eyebrow}</div> : null}
         <h2 className="tour-title">{step.title}</h2>
         <p className="tour-body">{step.body}</p>
         <div className="tour-actions">

@@ -10,7 +10,7 @@ export default async function ValuePage() {
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Value Case"
         title="What this would be worth"
         description="An illustrative model over assumptions you can change. Deliberately conservative: the saving applies to preparation time only, review and sign-off are unchanged, and the benefit is scaled by adoption."

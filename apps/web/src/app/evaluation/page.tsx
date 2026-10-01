@@ -10,7 +10,7 @@ export default async function EvaluationPage() {
 
   return (
     <>
-      <PageHeader
+      <PageHeader tour="page-header"
         eyebrow="Evaluation Lab"
         title="How well does this actually work"
         description="A reproducible suite over the reference corpus. Pass rate is computed over executed cases only, and coverage reports how much of the suite ran - so a result cannot look strong by not running."
