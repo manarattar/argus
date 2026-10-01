@@ -144,7 +144,7 @@ export function EvidenceGraph({ data }: { data: EvidenceGraphData }) {
   const selectedNode = selected ? data.nodes.find((n) => n.id === selected) : null;
 
   return (
-    <div className="grid gap-5 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-4">
       <Card className="xl:col-span-3" padded={false}>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
           <div>

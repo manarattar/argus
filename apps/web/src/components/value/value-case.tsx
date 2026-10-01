@@ -110,7 +110,7 @@ export function ValueCase({
     (assumptions.assisted_hours_per_case ?? 0) > (assumptions.manual_hours_per_case ?? 0);
 
   return (
-    <div className="grid gap-5 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
       <div className="space-y-5 xl:col-span-2">
         <Callout tone="warn" title="Illustrative model">
           {disclaimer}
@@ -163,7 +163,7 @@ export function ValueCase({
                 </MetricGrid>
               </div>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <SectionLabel>Effort per month</SectionLabel>
                   <EffortBar

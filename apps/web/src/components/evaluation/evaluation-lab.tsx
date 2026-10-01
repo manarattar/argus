@@ -319,7 +319,7 @@ function SuiteDefinition({
         title="What the suite tests"
         description="The split between deterministic and model-dependent cases is what makes the results comparable across environments."
       />
-      <div className="mt-4 grid gap-5 md:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
           <SectionLabel>Deterministic ({suite.deterministic} cases)</SectionLabel>
           <p className="text-2xs leading-relaxed text-ink-muted">

@@ -3,12 +3,11 @@
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { ErrorState, PageHeader } from '@/components/ui/primitives';
 
 /**
- * Route-level error boundary. Shows the real message rather than a generic
- * apology: when the backend is down or a step failed, the specific reason is
- * the useful thing to display.
+ * Route-level error boundary. One calm screen instead of a blank page, with
+ * the real message underneath: when the backend is down or a step failed, the
+ * specific reason is the useful thing to show.
  */
 export default function RouteError({
   error,
@@ -22,27 +21,23 @@ export default function RouteError({
   }, [error]);
 
   return (
-    <>
-      <PageHeader eyebrow="Error" title="This page could not be loaded" />
-      <ErrorState
-        title={error.message || 'Unexpected error'}
-        detail={
-          <>
-            <p>
-              If the API is not running, start it with <code className="font-mono">make api</code>{' '}
-              and try again.
-            </p>
-            {error.digest ? (
-              <p className="mt-1.5 font-mono text-2xs">reference: {error.digest}</p>
-            ) : null}
-          </>
-        }
-        action={
-          <Button variant="primary" onClick={reset}>
-            Try again
-          </Button>
-        }
-      />
-    </>
+    <div role="alert" className="mx-auto mt-10 max-w-xl border border-line border-l-[3px] border-l-high bg-surface p-6 shadow-card">
+      <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-high">Page error</p>
+      <h1 className="mt-1.5 text-xl font-semibold text-ink">This page stopped working</h1>
+      <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+        Nothing was changed. Try the page again. If the API is not running, start it with{' '}
+        <code className="font-mono text-xs">make api</code> first.
+      </p>
+      <p className="mt-3 break-words rounded bg-raised px-3 py-2 font-mono text-2xs text-ink-muted">
+        {(error.message || 'Unexpected error').slice(0, 240)}
+        {error.digest ? ` · ref ${error.digest}` : ''}
+      </p>
+      <div className="mt-4 flex gap-2">
+        <Button variant="primary" onClick={reset}>
+          Try again
+        </Button>
+        <Button onClick={() => window.location.assign('/')}>Back to overview</Button>
+      </div>
+    </div>
   );
 }

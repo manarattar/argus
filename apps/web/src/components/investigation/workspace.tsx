@@ -81,7 +81,7 @@ export function InvestigationWorkspace({
   return (
     <div className="space-y-5">
       {/* Assessment header: the one thing always on screen. */}
-      <Card>
+      <Card tour="case-summary">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
             <p className="mb-2 text-2xs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
@@ -117,7 +117,7 @@ export function InvestigationWorkspace({
             </p>
           </div>
 
-          <dl className="grid shrink-0 grid-cols-2 gap-x-8 gap-y-3 text-xs sm:grid-cols-4">
+          <dl className="grid w-full min-w-0 grid-cols-2 gap-x-6 gap-y-3 text-xs sm:w-auto sm:shrink-0 sm:grid-cols-4 sm:gap-x-8">
             <HeaderStat label="Duration" value={formatDuration(investigation.duration_ms)} />
             <HeaderStat
               label="Retrieval quality"
@@ -186,10 +186,11 @@ export function InvestigationWorkspace({
 
       {/* Tabs */}
       <div className="border-b border-line">
-        <nav className="-mb-px flex flex-wrap gap-1" role="tablist" aria-label="Investigation views">
+        <nav data-tour="tabs" className="-mb-px flex flex-wrap gap-1" role="tablist" aria-label="Investigation views">
           {tabs.map((item) => (
             <button
               key={item.key}
+              data-tour={`tab-${item.key}`}
               role="tab"
               aria-selected={tab === item.key}
               onClick={() => setTab(item.key)}

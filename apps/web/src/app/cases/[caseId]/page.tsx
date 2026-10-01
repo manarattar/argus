@@ -46,7 +46,11 @@ export default async function CasePage({ params }: { params: { caseId: string } 
             {detail.jurisdiction || 'jurisdiction not recorded'} · assigned to {detail.analyst}
           </>
         }
-        actions={<StartInvestigation caseId={detail.id} hasInvestigation={Boolean(latest)} />}
+        actions={
+          <div data-tour="start">
+            <StartInvestigation caseId={detail.id} hasInvestigation={Boolean(latest)} />
+          </div>
+        }
       />
 
       {investigation ? (
@@ -57,7 +61,7 @@ export default async function CasePage({ params }: { params: { caseId: string } 
           suggestedQuestions={suggested?.questions ?? []}
         />
       ) : (
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <CardHeader
               title="No investigation has run for this case"

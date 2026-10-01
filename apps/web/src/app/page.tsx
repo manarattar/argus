@@ -62,7 +62,7 @@ export default async function OverviewPage() {
         actions={<LinkButton href="/cases" variant="primary">Open cases</LinkButton>}
       />
 
-      <Card className="mb-5">
+      <Card className="mb-5" tour="overview">
         <MetricGrid columns={6}>
           <Metric
             label="Active cases"
@@ -112,7 +112,7 @@ export default async function OverviewPage() {
         </Callout>
       ) : null}
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
             title="Recent investigations"

@@ -31,15 +31,18 @@ export function Card({
   className,
   padded = true,
   id,
+  tour,
 }: {
   children: ReactNode;
   className?: string;
   padded?: boolean;
   id?: string;
+  tour?: string;
 }) {
   return (
     <section
       id={id}
+      data-tour={tour}
       className={clsx(
         'rounded-lg border border-line bg-surface shadow-card',
         padded && 'p-5',

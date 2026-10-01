@@ -80,14 +80,14 @@ export function ScenarioLab({
   const changed = Math.abs(value - active.current_value) > 1e-9;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       <div className="space-y-5 lg:col-span-2">
         <Card>
           <CardHeader
             title="Choose a variable"
             description="Only quantities extracted from the case evidence, and governed by a policy threshold, can be varied."
           />
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {variables.map((variable) => (
               <button
                 key={variable.key}
@@ -231,7 +231,7 @@ function ScenarioResultCard({ result }: { result: ScenarioResult }) {
     <Card>
       <CardHeader title="Projected outcome" description={result.explanation} />
 
-      <div className="mt-5 grid gap-5 sm:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
         <div>
           <SectionLabel>Current</SectionLabel>
           <RiskBadge level={result.original_level} score={result.original_score} size="lg" />

@@ -68,7 +68,7 @@ export function ReviewGate({
 
   if (investigation.status === 'failed') {
     return (
-      <Card>
+      <Card tour="review-gate">
         <p className="text-sm font-semibold text-high">
           This investigation failed and cannot be reviewed
         </p>
@@ -82,7 +82,7 @@ export function ReviewGate({
 
   if (investigation.status === 'completed' && latestReview) {
     return (
-      <Card className="border-low/30 bg-low/5">
+      <Card tour="review-gate" className="border-low/30 bg-low/5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="ok">Review complete</Badge>
           <span className="text-sm font-medium text-ink">
@@ -136,7 +136,7 @@ export function ReviewGate({
   }
 
   return (
-    <Card className="border-accent/30">
+    <Card tour="review-gate" className="border-accent/30">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-ink">Human review gate</h2>

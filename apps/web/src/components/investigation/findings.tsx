@@ -267,7 +267,7 @@ function FindingCard({
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-5 lg:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div>
               <SectionLabel>Supporting evidence ({supporting.length})</SectionLabel>
               {supporting.length === 0 ? (
@@ -358,7 +358,7 @@ function FindingCard({
           {(finding.mitigating_factors.length > 0 ||
             finding.assumptions.length > 0 ||
             finding.open_questions.length > 0) ? (
-            <div className="mt-5 grid gap-5 md:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
               <ListBlock label="Mitigating factors" items={finding.mitigating_factors} />
               <ListBlock label="Assumptions" items={finding.assumptions} />
               <ListBlock label="Open questions" items={finding.open_questions} />

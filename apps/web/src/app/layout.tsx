@@ -1,9 +1,19 @@
 import type { Metadata, Viewport } from 'next';
+import { Red_Hat_Display, Red_Hat_Mono, Red_Hat_Text } from 'next/font/google';
 
+import { Onboarding, TourButton } from '@/components/shell/onboarding';
 import { MobileNav, Sidebar, ThemeToggle } from '@/components/shell/navigation';
 import { getRuntime } from '@/lib/api';
 
 import './globals.css';
+
+const text = Red_Hat_Text({ subsets: ['latin'], variable: '--font-text', display: 'swap' });
+const display = Red_Hat_Display({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
+const mono = Red_Hat_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
   title: {
@@ -16,31 +26,24 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0e14' },
-  ],
+  themeColor: '#f4f5f2',
 };
 
 /**
- * Applies the stored theme before first paint, so a dark-theme user never sees
- * a white flash on navigation.
+ * Light is the default. Dark applies only when the visitor chose it with the
+ * toggle, so the OS colour scheme never decides the look.
  */
-const THEME_SCRIPT = `
-(function () {
-  try {
-    var stored = localStorage.getItem('argus-theme');
-    var dark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    if (dark) document.documentElement.classList.add('dark');
-  } catch (e) {}
-})();
-`;
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const runtime = await getRuntime();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${text.variable} ${display.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
@@ -64,12 +67,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   or endorsed by, any financial institution.
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3">
+              <div className="flex shrink-0 items-center gap-1">
                 {runtime ? (
-                  <span className="hidden text-2xs text-ink-subtle md:inline">
+                  <span className="mr-2 hidden text-2xs text-ink-subtle md:inline">
                     {runtime.database} · {runtime.environment}
                   </span>
                 ) : null}
+                <TourButton />
                 <ThemeToggle />
               </div>
             </header>
@@ -79,6 +83,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </main>
           </div>
         </div>
+
+        <Onboarding />
       </body>
     </html>
   );

@@ -11,7 +11,7 @@ import type { Config } from 'tailwindcss';
  * instantly without a legend.
  */
 const config: Config = {
-  darkMode: 'class',
+  darkMode: ['selector', '[data-theme="dark"]'],
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
@@ -35,24 +35,9 @@ const config: Config = {
         high: 'rgb(var(--high) / <alpha-value>)',
       },
       fontFamily: {
-        sans: [
-          'ui-sans-serif',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Inter',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-        ],
-        mono: [
-          'ui-monospace',
-          'SFMono-Regular',
-          'Cascadia Mono',
-          'Menlo',
-          'Consolas',
-          'monospace',
-        ],
+        sans: ['var(--font-text)', 'ui-sans-serif', '-apple-system', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-text)', 'ui-sans-serif', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Cascadia Mono', 'Menlo', 'Consolas', 'monospace'],
       },
       fontSize: {
         // A tight scale. Dense interfaces need fewer sizes, not more.

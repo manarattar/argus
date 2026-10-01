@@ -56,55 +56,89 @@ function Wordmark({ onNavigate }: { onNavigate?: () => void }) {
     >
       <Mark />
       <span className="min-w-0">
-        <span className="block text-sm font-semibold tracking-[0.08em] text-ink">ARGUS</span>
+        <span className="block font-display text-sm font-semibold tracking-[0.08em] text-ink">ARGUS</span>
         <span className="block truncate text-2xs text-ink-subtle">Risk Intelligence</span>
       </span>
     </Link>
   );
 }
 
-/** The grouped link list. Identical in the desktop sidebar and the mobile drawer. */
+/**
+ * The grouped link list. Identical in the desktop sidebar and the mobile
+ * drawer. The first group is always open; the others are menus that open on
+ * demand (or by themselves when the current page lives inside them), which
+ * keeps the rail short.
+ */
 function NavGroups({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const [opened, setOpened] = useState<Record<string, boolean>>({});
 
   return (
     <div className="scroll-slim flex-1 overflow-y-auto px-2.5 py-4">
-      {GROUPS.map((group) => (
-        <div key={group.label} className="mb-5 last:mb-0">
-          <p className="px-2 pb-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-            {group.label}
-          </p>
-          <ul className="space-y-0.5">
-            {group.items.map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    title={item.hint}
-                    onClick={onNavigate}
-                    aria-current={active ? 'page' : undefined}
-                    className={clsx(
-                      'flex items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors',
-                      active
-                        ? 'bg-accent-soft font-medium text-accent'
-                        : 'text-ink-muted hover:bg-raised hover:text-ink',
-                    )}
-                  >
-                    <span
-                      className={clsx(
-                        'h-3.5 w-0.5 rounded-full',
-                        active ? 'bg-accent' : 'bg-transparent',
-                      )}
-                    />
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+      {GROUPS.map((group, index) => {
+        const holdsActive = group.items.some((item) => isActive(pathname, item.href));
+        const open = index === 0 || holdsActive || Boolean(opened[group.label]);
+        return (
+          <div key={group.label} className="mb-3 last:mb-0">
+            {index === 0 ? (
+              <p className="px-2 pb-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
+                {group.label}
+              </p>
+            ) : (
+              <button
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpened((current) => ({ ...current, [group.label]: !open }))}
+                className="flex min-h-[32px] w-full items-center justify-between rounded px-2 text-2xs font-semibold uppercase tracking-[0.12em] text-ink-subtle hover:bg-raised hover:text-ink"
+              >
+                {group.label}
+                <svg
+                  viewBox="0 0 20 20"
+                  className={clsx('h-3 w-3 transition-transform', open && 'rotate-90')}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M7 4l6 6-6 6" />
+                </svg>
+              </button>
+            )}
+            {open ? (
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        title={item.hint}
+                        onClick={onNavigate}
+                        aria-current={active ? 'page' : undefined}
+                        className={clsx(
+                          'flex min-h-[32px] items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors',
+                          active
+                            ? 'bg-accent-soft font-medium text-accent'
+                            : 'text-ink-muted hover:bg-raised hover:text-ink',
+                        )}
+                      >
+                        <span
+                          className={clsx(
+                            'h-3.5 w-0.5 rounded-full',
+                            active ? 'bg-accent' : 'bg-transparent',
+                          )}
+                        />
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -118,6 +152,7 @@ export function Sidebar({ runtime }: { runtime: RuntimeStatus | null }) {
   return (
     <nav
       aria-label="Primary"
+      data-tour="nav"
       className="hidden h-full w-56 shrink-0 flex-col border-r border-line bg-surface lg:flex"
     >
       <Wordmark />
@@ -163,7 +198,8 @@ export function MobileNav({ runtime }: { runtime: RuntimeStatus | null }) {
         onClick={() => setOpen(true)}
         aria-label="Open navigation"
         aria-expanded={open}
-        className="-ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded text-ink-muted hover:bg-raised hover:text-ink lg:hidden"
+        data-tour="nav"
+        className="-ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded text-ink-muted hover:bg-raised hover:text-ink lg:hidden"
       >
         <svg
           viewBox="0 0 20 20"
@@ -260,7 +296,7 @@ function RuntimeFooter({ runtime }: { runtime: RuntimeStatus | null }) {
 
   const demo = runtime.mode === 'demo';
   return (
-    <div className="border-t border-line px-4 py-3" title={runtime.explanation}>
+    <div className="border-t border-line px-4 py-3" title={runtime.explanation} data-tour="runtime">
       <p
         className={clsx(
           'flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-[0.1em]',
@@ -280,47 +316,42 @@ function RuntimeFooter({ runtime }: { runtime: RuntimeStatus | null }) {
   );
 }
 
-/** Theme toggle. Preference persists locally; system preference is the default. */
+/** Theme toggle. Light is the default; dark is opt-in and remembered. */
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const stored = window.localStorage.getItem('argus-theme');
-    const prefersDark =
-      stored === 'dark' ||
-      (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setDark(prefersDark);
-    document.documentElement.classList.toggle('dark', prefersDark);
+    setDark(document.documentElement.getAttribute('data-theme') === 'dark');
   }, []);
 
   function toggle() {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle('dark', next);
-    window.localStorage.setItem('argus-theme', next ? 'dark' : 'light');
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      window.localStorage.setItem('theme', next);
+    } catch {
+      /* storage can be unavailable; the choice then lasts for this visit */
+    }
+    setDark(next === 'dark');
   }
 
-  if (!mounted) {
-    return <span className="h-7 w-7" aria-hidden />;
-  }
-
+  const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
   return (
     <button
       type="button"
       onClick={toggle}
-      title={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-      aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="flex h-7 w-7 items-center justify-center rounded text-ink-muted transition-colors hover:bg-raised hover:text-ink"
+      title={label}
+      aria-label={label}
+      className="flex h-9 w-9 items-center justify-center rounded text-ink-muted transition-colors hover:bg-raised hover:text-ink"
     >
       {dark ? (
-        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden>
-          <path d="M10 3.5a1 1 0 0 1 1 1v.75a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1Zm0 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm6.5-2.5a1 1 0 0 1-1 1h-.75a1 1 0 1 1 0-2h.75a1 1 0 0 1 1 1Zm-11.75 1a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2h.75ZM10 14.75a1 1 0 0 1 1 1v.75a1 1 0 1 1-2 0v-.75a1 1 0 0 1 1-1Zm4.6-9.35a1 1 0 0 1 0 1.42l-.53.53a1 1 0 0 1-1.42-1.42l.53-.53a1 1 0 0 1 1.42 0ZM6.35 13.65a1 1 0 0 1 0 1.41l-.53.53a1 1 0 0 1-1.42-1.41l.53-.53a1 1 0 0 1 1.42 0Zm8.25 1.94-.53-.53a1 1 0 0 1 1.42-1.41l.53.53a1 1 0 0 1-1.42 1.41ZM5.82 5.4l.53.53A1 1 0 1 1 4.93 7.35l-.53-.53A1 1 0 0 1 5.82 5.4Z" />
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
         </svg>
       ) : (
-        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden>
-          <path d="M16.3 12.4a6.5 6.5 0 0 1-8.7-8.7 1 1 0 0 0-1.3-1.3 8.5 8.5 0 1 0 11.3 11.3 1 1 0 0 0-1.3-1.3Z" />
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </svg>
       )}
     </button>

@@ -58,7 +58,7 @@ export default async function CasesPage() {
           }
         />
       ) : (
-        <Card padded={false}>
+        <Card padded={false} tour="cases">
           <div className="px-5 py-4">
             <Table>
               <thead>

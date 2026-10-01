@@ -70,7 +70,7 @@ export default async function ArchitecturePage() {
         </div>
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader
             title="Reusable capabilities"
@@ -147,7 +147,7 @@ export default async function ArchitecturePage() {
 
         <div className="mt-5">
           <SectionLabel>Implemented</SectionLabel>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {implemented.map((domain) => (
               <div key={domain.key} className="rounded border border-low/30 bg-low/5 px-4 py-3.5">
                 <div className="flex flex-wrap items-center gap-2">
@@ -184,7 +184,7 @@ export default async function ArchitecturePage() {
             review type is a configuration plus a policy library, not a fork of the pipeline —
             and they are labelled so nobody mistakes them for finished functionality.
           </p>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {design.map((domain) => (
               <div
                 key={domain.key}
@@ -203,7 +203,7 @@ export default async function ArchitecturePage() {
         </div>
       </Card>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader
             title="Prompt library"

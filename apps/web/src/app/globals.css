@@ -8,39 +8,52 @@
  */
 @layer base {
   :root {
-    --canvas: 248 250 252;
-    --surface: 255 255 255;
-    --raised: 244 247 250;
-    --line: 226 232 240;
-    --line-strong: 203 213 225;
-    --ink: 15 23 42;
-    --ink-muted: 71 85 105;
-    --ink-subtle: 130 143 161;
-    --accent: 30 87 138;
-    --accent-soft: 232 240 248;
+    color-scheme: light;
+    /* Committee file: warm-neutral paper, ink, green-slate accent. */
+    --canvas: 244 245 242;
+    --surface: 255 255 253;
+    --raised: 238 240 236;
+    --line: 220 224 218;
+    --line-strong: 192 199 191;
+    --ink: 24 33 30;
+    --ink-muted: 68 80 76;
+    --ink-subtle: 112 124 119;
+    --accent: 31 77 69;
+    --accent-soft: 223 235 230;
 
     --low: 21 115 85;
-    --moderate: 168 116 12;
+    --moderate: 160 108 8;
     --elevated: 187 84 20;
     --high: 172 32 42;
+
+    --tour-ink: #18211e;
+    --tour-paper: #fffffd;
+    --tour-accent: #1f4d45;
+    --tour-line: #dce0da;
   }
 
-  .dark {
-    --canvas: 10 14 20;
-    --surface: 17 23 32;
-    --raised: 24 32 43;
-    --line: 33 43 56;
-    --line-strong: 50 63 79;
-    --ink: 228 236 244;
-    --ink-muted: 154 168 184;
-    --ink-subtle: 111 125 141;
-    --accent: 106 168 226;
-    --accent-soft: 22 39 56;
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --canvas: 14 19 17;
+    --surface: 21 28 25;
+    --raised: 28 37 33;
+    --line: 38 49 44;
+    --line-strong: 56 70 63;
+    --ink: 226 234 230;
+    --ink-muted: 156 170 164;
+    --ink-subtle: 112 127 120;
+    --accent: 120 190 168;
+    --accent-soft: 26 45 40;
 
     --low: 78 189 148;
     --moderate: 224 168 62;
     --elevated: 240 143 78;
     --high: 240 113 120;
+
+    --tour-ink: #e2eae6;
+    --tour-paper: #151c19;
+    --tour-accent: #78bea8;
+    --tour-line: #26312c;
   }
 
   * {
@@ -53,10 +66,14 @@
 
   body {
     @apply bg-canvas text-ink antialiased;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: var(--font-text), ui-sans-serif, system-ui, sans-serif;
   }
 
   /* Figures line up in columns without needing a monospace font. */
+  h1, h2, h3 {
+    font-family: var(--font-display), var(--font-text), ui-sans-serif, sans-serif;
+  }
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }
@@ -156,3 +173,43 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Guided tour (see components/shell/onboarding.tsx). */
+.tour-layer { position: fixed; inset: 0; z-index: 100; }
+.tour-spot {
+  position: fixed;
+  border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgb(10 16 14 / 0.6), 0 0 0 2px var(--tour-accent);
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+.tour-card {
+  position: fixed;
+  width: min(340px, calc(100vw - 24px));
+  background: var(--tour-paper);
+  color: var(--tour-ink);
+  border: 1px solid var(--tour-line);
+  border-left: 3px solid var(--tour-accent);
+  border-radius: 4px;
+  padding: 14px 16px 12px;
+  box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.35);
+}
+.tour-card.sheet {
+  left: 12px !important;
+  right: 12px;
+  top: auto !important;
+  bottom: 12px;
+  width: auto;
+}
+.tour-count { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; font-family: var(--font-mono), monospace; }
+.tour-title { margin: 4px 0 6px; font-size: 15px; font-weight: 600; }
+.tour-body { margin: 0 0 12px; font-size: 13px; line-height: 1.5; opacity: 0.85; }
+.tour-actions { display: flex; align-items: center; gap: 8px; }
+.tour-gap { flex: 1; }
+.tour-actions button {
+  min-height: 34px; padding: 0 12px; border-radius: 4px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--tour-line); background: transparent; color: var(--tour-ink); cursor: pointer;
+}
+.tour-actions .tour-next { background: var(--tour-accent); border-color: var(--tour-accent); color: var(--tour-paper); }
+.tour-actions .tour-skip { border-color: transparent; opacity: 0.7; padding: 0 4px; }
+.tour-actions button[hidden] { display: none; }
