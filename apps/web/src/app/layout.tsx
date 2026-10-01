@@ -16,12 +16,35 @@ const display = Red_Hat_Display({
 const mono = Red_Hat_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://argus.manarattar.com'),
   title: {
-    default: 'ARGUS — Agentic Risk Governance & Understanding System',
-    template: '%s · ARGUS',
+    default: 'ARGUS',
+    template: '%s | ARGUS',
   },
   description:
-    'From fragmented evidence to explainable risk intelligence. AI investigates and recommends; humans decide.',
+    'ARGUS helps financial-risk analysts trace findings to source evidence, check policy, compute a provisional rating, and record a human review decision.',
+  alternates: { canonical: 'https://argus.manarattar.com' },
+  openGraph: {
+    type: 'website',
+    siteName: 'ARGUS',
+    title: 'ARGUS',
+    description:
+      'ARGUS helps financial-risk analysts trace findings to source evidence, check policy, compute a provisional rating, and record a human review decision.',
+    url: 'https://argus.manarattar.com',
+    images: [{
+      url: 'https://argus.manarattar.com/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'ARGUS: Agentic risk governance with a human review gate',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ARGUS',
+    description:
+      'ARGUS helps financial-risk analysts trace findings to source evidence, check policy, compute a provisional rating, and record a human review decision.',
+    images: ['https://argus.manarattar.com/og-image.png'],
+  },
   robots: { index: false, follow: false },
 };
 
